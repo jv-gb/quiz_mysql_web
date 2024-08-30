@@ -27,14 +27,21 @@ app.use('/style', express.static(path.join(__dirname, 'style')));
 app.use(express.urlencoded({ extended: true }));
 
 app.get('/acessar-jogador',(req, res)=>{
-    const nomeJogador = req.body['nome-jogador'];
-    const senhaJogador = req.body['senha'];
-    const sql = `SELECT username FROM jogador WHERE username = ${nomeJogador} and senha = ${senhaJogador}`;
+    const nomeJogador = req.query['nome-jogador'];
+    const senhaJogador = req.query['senha'];
+    const sql = 'SELECT username FROM jogador WHERE username = (?) and senha = (?)';
 
-    connection.query(sql,(err) => {
+    console.log(sql);
+
+    connection.query(sql,[nomeJogador,senhaJogador],(err,response) => {
         if (err) {
             console.error('Usuário ou senha incorretos:', err);
             res.status(500).send('Usuário ou senha incorretos');
+            return;
+        }
+        if(response.length === 0){
+            console.error('Usuário ou senha incorretos:', err);
+            res.status(401).send('Usuário ou senha incorretos');
             return;
         }
         res.redirect('/jogo.html');
