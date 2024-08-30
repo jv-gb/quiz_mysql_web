@@ -67,3 +67,13 @@ body {
     color: #fff;
     border-radius: 5px;
 }
+/* Adicione isto ao final do seu arquivo CSS */
+
+a.btn {
+    background-color: #28a745;
+    text-decoration: none;
+}
+
+a.btn:hover {
+    background-color: #218838;
+}

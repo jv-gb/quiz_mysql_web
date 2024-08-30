@@ -12,8 +12,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const loadQuestion = () => {
         if (currentQuestionIndex >= perguntas.length) {
-            container.innerHTML = `<h1>Fim do Quiz! Pontuação Final: ${score}</h1>`;
-            // Aqui você pode enviar a pontuação final ao servidor se necessário
+            container.innerHTML = `
+                <h1>Fim do Quiz! Pontuação Final: ${score}</h1>
+                <a href="../index.html" class="btn">Jogar Novamente</a>
+            `;
             return;
         }
 
@@ -65,6 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
         container.appendChild(perguntaDiv);
         container.appendChild(nextButton);
 
+        // Adiciona o evento de clique para destacar a opção selecionada
         perguntaDiv.querySelectorAll('.option').forEach(option => {
             option.addEventListener('click', () => {
                 perguntaDiv.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
@@ -73,6 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    // Carregar as perguntas da API
     fetch('/perguntas')
         .then(response => response.json())
         .then(data => {
