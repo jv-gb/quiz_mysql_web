@@ -4,10 +4,6 @@ const mysql = require('mysql2');
 const app = express();
 const port = 3000;
 
-
-
-
-
 const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
@@ -32,7 +28,6 @@ app.use(express.urlencoded({ extended: true }));
 
 // Rota para salvar o jogador
 app.post('/salvar-jogador', (req, res) => {
-    console.log('entrou aqui');
     const nomeJogador = req.body['nome-jogador'];
     const sql = 'INSERT INTO jogador (nome) VALUES (?)';
 
@@ -77,7 +72,6 @@ app.get('/perguntas', (req, res) => {
 
         const perguntasMap = new Map();
 
-        // Agrupar perguntas e respostas
         results.forEach(row => {
             if (!perguntasMap.has(row.Texto_pergunta)) {
                 perguntasMap.set(row.Texto_pergunta, []);
@@ -90,16 +84,16 @@ app.get('/perguntas', (req, res) => {
 
         const perguntas = Array.from(perguntasMap.entries()).map(([pergunta, respostas]) => ({
             pergunta,
-            respostas: respostas.sort(() => 0.5 - Math.random()) // Embaralha as respostas
+            respostas: respostas.sort(() => 0.5 - Math.random())
         }));
 
         res.json(perguntas.slice(0, 10)); // Retorna 10 perguntas
     });
 });
 
-// Configura a rota principal
+// Rota principal
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(path.join(__dirname, 'view/index.html'));
 });
 
 // Iniciar o servidor

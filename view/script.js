@@ -1,13 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
     let currentQuestionIndex = 0;
+    let score = 0;
     let perguntas = [];
 
     const container = document.querySelector('.container');
-    const form = document.createElement('form');
+    const scoreElement = document.querySelector('.score');
+
+    const updateScore = () => {
+        scoreElement.textContent = `Pontuação: ${score}`;
+    };
 
     const loadQuestion = () => {
         if (currentQuestionIndex >= perguntas.length) {
-            container.innerHTML = '<h1>Fim do Quiz!</h1>';
+            container.innerHTML = `<h1>Fim do Quiz! Pontuação Final: ${score}</h1>`;
+            // Aqui você pode enviar a pontuação final ao servidor se necessário
             return;
         }
 
@@ -45,8 +51,11 @@ document.addEventListener('DOMContentLoaded', () => {
         nextButton.addEventListener('click', () => {
             const selectedOption = document.querySelector('input[name="resposta"]:checked');
             if (selectedOption) {
-                // Aqui você pode enviar a resposta para o servidor, se necessário
+                if (selectedOption.value === pergunta.respostas.find(r => r.correta).texto) {
+                    score += 10; // Cada pergunta vale 10 pontos
+                }
                 currentQuestionIndex++;
+                updateScore();
                 loadQuestion();
             } else {
                 alert('Por favor, selecione uma resposta!');
@@ -56,7 +65,6 @@ document.addEventListener('DOMContentLoaded', () => {
         container.appendChild(perguntaDiv);
         container.appendChild(nextButton);
 
-        // Adiciona o evento de clique para destacar a opção selecionada
         perguntaDiv.querySelectorAll('.option').forEach(option => {
             option.addEventListener('click', () => {
                 perguntaDiv.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
@@ -65,7 +73,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // Carregar as perguntas da API
     fetch('/perguntas')
         .then(response => response.json())
         .then(data => {
