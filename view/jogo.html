@@ -9,6 +9,10 @@
 <body>
     <div class="score">Pontuação: 0</div>
     <div class="container"></div>
+    <form id="pontuacao-form" action="/salvar-pontuacao" method="POST" style="display: none;">
+        <input type="hidden" name="nome-jogador" id="nome-jogador-form">
+        <input type="hidden" name="pontuacao" id="pontuacao-form">
+    </form>
     <script src="script.js"></script>
 </body>
 </html>

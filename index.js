@@ -26,13 +26,36 @@ app.use('/style', express.static(path.join(__dirname, 'style')));
 // Middleware para parsear o corpo das requisições POST
 app.use(express.urlencoded({ extended: true }));
 
+app.get('/acessar-jogador',(req, res)=>{
+    const nomeJogador = req.body['nome-jogador'];
+    const senhaJogador = req.body['senha'];
+    const sql = `SELECT username FROM jogador WHERE username = ${nomeJogador} and senha = ${senhaJogador}`;
+
+    connection.query(sql,(err) => {
+        if (err) {
+            console.error('Usuário ou senha incorretos:', err);
+            res.status(500).send('Usuário ou senha incorretos');
+            return;
+        }
+        res.redirect('/jogo.html');
+    });
+
+})
+
 // Rota para salvar o jogador
 app.post('/salvar-jogador', (req, res) => {
-    const nomeJogador = req.body['nome-jogador'];
-    const sql = 'INSERT INTO jogador (nome) VALUES (?)';
+    console.log(req);
+    const nomeJogador = req.body['nome-jogador-novo'];
+    const senhaJogador = req.body['senha-nova'];
+    console.log(nomeJogador);
 
-    connection.query(sql, [nomeJogador], (err) => {
+    const sql = 'INSERT INTO jogador (username, senha) VALUES (?, ?)';
+    console.log(sql);
+
+    connection.query(sql, [nomeJogador,senhaJogador], (err) => {
+        console.log('entrou aqui');
         if (err) {
+            console.log('teste');
             console.error('Erro ao salvar o jogador:', err);
             res.status(500).send('Erro ao salvar o jogador');
             return;
@@ -40,6 +63,8 @@ app.post('/salvar-jogador', (req, res) => {
         res.redirect('/jogo.html');
     });
 });
+
+
 
 // Rota para salvar a pontuação
 app.post('/salvar-pontuacao', (req, res) => {
@@ -99,4 +124,38 @@ app.get('/', (req, res) => {
 // Iniciar o servidor
 app.listen(port, () => {
     console.log(`Servidor rodando em http://localhost:${port}`);
+});
+// Rota para salvar a pontuação
+app.post('/salvar-pontuacao', (req, res) => {
+    const nomeJogador = req.body['nome-jogador'];
+    const pontuacao = req.body.pontuacao;
+
+    // Primeiro, obtenha o ID do jogador
+    const getJogadorIdQuery = 'SELECT ID_jogador FROM jogador WHERE nome = ?';
+    connection.query(getJogadorIdQuery, [nomeJogador], (err, results) => {
+        if (err) {
+            console.error('Erro ao obter ID do jogador:', err);
+            res.status(500).send('Erro ao obter ID do jogador');
+            return;
+        }
+
+        if (results.length === 0) {
+            console.error('Jogador não encontrado');
+            res.status(404).send('Jogador não encontrado');
+            return;
+        }
+
+        const jogadorId = results[0].ID_jogador;
+
+        // Insere a pontuação na tabela partida
+        const insertPartidaQuery = 'INSERT INTO partida (ID_jogador, pontuacao_total) VALUES (?, ?)';
+        connection.query(insertPartidaQuery, [jogadorId, pontuacao], (err) => {
+            if (err) {
+                console.error('Erro ao salvar a pontuação:', err);
+                res.status(500).send('Erro ao salvar a pontuação');
+                return;
+            }
+            res.redirect('/ranking.html');
+        });
+    });
 });

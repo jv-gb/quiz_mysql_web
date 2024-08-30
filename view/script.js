@@ -2,9 +2,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentQuestionIndex = 0;
     let score = 0;
     let perguntas = [];
+    let jogadorNome = ''; // Nome do jogador
 
     const container = document.querySelector('.container');
     const scoreElement = document.querySelector('.score');
+    const pontuacaoForm = document.getElementById('pontuacao-form');
+    const nomeJogadorInput = document.getElementById('nome-jogador-form');
+    const pontuacaoInput = document.getElementById('pontuacao-form');
 
     const updateScore = () => {
         scoreElement.textContent = `Pontuação: ${score}`;
@@ -12,10 +16,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const loadQuestion = () => {
         if (currentQuestionIndex >= perguntas.length) {
+            // Preenche o formulário com o nome do jogador e a pontuação
+            nomeJogadorInput.value = jogadorNome;
+            pontuacaoInput.value = score;
+
+            // Exibe o botão "Jogar Novamente"
             container.innerHTML = `
                 <h1>Fim do Quiz! Pontuação Final: ${score}</h1>
                 <a href="../index.html" class="btn">Jogar Novamente</a>
+                <button id="salvar-pontuacao" class="btn">Salvar Pontuação</button>
             `;
+            document.getElementById('salvar-pontuacao').addEventListener('click', () => {
+                pontuacaoForm.submit();
+            });
             return;
         }
 
@@ -84,6 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 pergunta: q.pergunta,
                 respostas: q.respostas
             }));
+            jogadorNome = new URLSearchParams(window.location.search).get('nome-jogador') || '';
             loadQuestion();
         })
         .catch(error => console.error('Erro ao carregar perguntas:', error));

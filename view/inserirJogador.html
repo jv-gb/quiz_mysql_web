@@ -8,11 +8,24 @@
 </head>
 <body>
     <div class="container">
-        <h1>Insira seu nome</h1>
-        <form action="/salvar-jogador" method="POST">
-            <input type="text" id="nome-jogador" name="nome-jogador" placeholder="Nome do jogador" required>
-            <button type="submit" class="btn">Começar</button>
+        <h1>Login</h1>
+        <form action="/acessar-jogador" method="get">
+            <input type="text" id="nome-jogador" name="nome-jogador" placeholder="Nome de usuário" required>
+            <input type="password" id="senha" name="senha" placeholder="senha" required>
+
+            <button type="submit" class="btn">Entrar</button>
+        </form>    
+    </div>
+
+    <div class="container">
+        <h1>Crie uma conta</h1>
+        <form action="/salvar-jogador" method="post">
+            <input type="text" id="nome-jogador-novo" name="nome-jogador-novo" placeholder="Nome de usuário" required>
+            <input type="password" id="senha-nova" name="senha-nova" placeholder="senha" required>
+
+            <button type="submit" class="btn">Criar</button>
         </form>
+        
     </div>
 </body>
 </html>
