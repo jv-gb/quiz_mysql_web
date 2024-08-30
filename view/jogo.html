@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - MySQL</title>
+    <link rel="stylesheet" href="../style/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Pergunta sobre MySQL</h1>
+        <p>Qual comando é usado para criar um banco de dados em MySQL?</p>
+
+        <form>
+            <label class="option">
+                <input type="radio" name="alternativa" value="A">
+                CREATE DATABASE
+            </label>
+
+            <label class="option">
+                <input type="radio" name="alternativa" value="B">
+                CREATE DB
+            </label>
+
+            <label class="option">
+                <input type="radio" name="alternativa" value="C">
+                MAKE DATABASE
+            </label>
+
+            <label class="option">
+                <input type="radio" name="alternativa" value="D">
+                NEW DATABASE
+            </label>
+
+            <button type="submit" class="btn">Enviar</button>
+        </form>
+    </div>
+    <script>
+        const options = document.querySelectorAll('.option');
+        options.forEach(option => {
+            option.addEventListener('click', () => {
+                options.forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+            });
+        });
+    </script>
+</body>
+
+</html>
