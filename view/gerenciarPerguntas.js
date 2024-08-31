@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const handleDelete = (event) => {
         const questionIndex = event.target.dataset.id;
-        const questionData = perguntas[questionIndex];
+        const questionData = listaPerguntas.find(pergunta => Number(pergunta.id) === Number(questionIndex));
 
         fetch(`/excluir-pergunta/${questionData.id}`, {
             method: 'DELETE'

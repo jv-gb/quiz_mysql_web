@@ -185,6 +185,7 @@ app.put('/editar-pergunta/:id', (req, res) => {
         if (err) return res.status(500).json({ error: err.message });
 
         const query = 'UPDATE resposta SET texto_resposta = ?, correta = ? WHERE id_resposta = ?';
+
         respostas && respostas.forEach(resposta => {
             connection.query(query, [resposta.texto_resposta, resposta.correta ? 1 : 0, resposta.id_resposta], (err) => {
                 if (err) return res.status(500).json({ error: err.message });
@@ -195,16 +196,20 @@ app.put('/editar-pergunta/:id', (req, res) => {
     });
 });
 
-// Adicionar pergunta
-app.post('/api/pergunta', (req, res) => {
-    const { texto_pergunta } = req.body;
+//deletar perguntas
+app.delete('/excluir-pergunta/:id', (req, res) => {
+    const idPergunta = Number(req.params.id);
 
-    connection.query('INSERT INTO pergunta (texto_pergunta) VALUES (?)', [texto_pergunta], (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
-
+    connection.query('DELETE FROM pergunta WHERE id_pergunta = ?', [idPergunta], (err)=>{
+        if(err){
+            return res.status(500).json({ error: err.message });
+        }
         res.json({ success: true });
-    });
 });
+
+
+});
+
 // Iniciar o servidor
 app.listen(port, () => {
     console.log(`Servidor rodando em http://localhost:${port}`);
