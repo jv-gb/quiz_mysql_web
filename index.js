@@ -51,16 +51,14 @@ app.get('/acessar-jogador',(req, res)=>{
 
 // Rota para salvar o jogador
 app.post('/salvar-jogador', (req, res) => {
-    console.log(req);
+   
     const nomeJogador = req.body['nome-jogador-novo'];
     const senhaJogador = req.body['senha-nova'];
     console.log(nomeJogador);
 
-    const sql = 'INSERT INTO jogador (username, senha) VALUES (?, ?)';
-    console.log(sql);
+    const sql = 'INSERT INTO jogador (username, senha) VALUES (?, ?)';   
 
     connection.query(sql, [nomeJogador,senhaJogador], (err) => {
-        console.log('entrou aqui');
         if (err) {
             console.log('teste');
             console.error('Erro ao salvar o jogador:', err);
@@ -91,9 +89,54 @@ app.post('/salvar-pontuacao', (req, res) => {
 
 // Rota para visualizar perguntas
 app.get('/perguntas', (req, res) => {
-    const sql = `SELECT DISTINCT p.Texto_pergunta, r.Texto_Resposta, r.correta 
+    const sql = `SELECT * FROM
+    (SELECT DISTINCT p.id_pergunta, p.texto_pergunta
+        FROM pergunta p
+        ORDER BY RAND ()
+        LIMIT 10) as pr
+JOIN resposta r ON pr.id_pergunta = r.id_pergunta`;
+
+    connection.query(sql, (err, results) => {
+        console.log(results);
+        
+        if (err) {
+            console.error('Erro ao obter perguntas:', err);
+            res.status(500).send('Erro ao obter perguntas');
+            return;
+        }
+
+        const perguntasMap = new Map();
+
+        results.forEach(result => {
+            if (!perguntasMap.has(result.texto_pergunta)) {
+                perguntasMap.set(result.texto_pergunta, []);
+            }
+            perguntasMap.get(result.texto_pergunta).push({
+                texto: result.texto_resposta,
+                correta: result.correta
+            });
+        });
+
+        const perguntas = Array.from(perguntasMap.entries()).map(([pergunta, respostas]) => ({
+            pergunta,
+            respostas: respostas.sort(() => 0.5 - Math.random())
+        }));
+
+        res.json(perguntas); 
+    });
+});
+
+// Rota principal
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'view/index.html'));
+});
+
+
+// Rota para obter todas as perguntas
+app.get('/obter-perguntas', (req, res) => {
+    const sql = `SELECT p.ID_pergunta, p.Texto_pergunta, r.ID_resposta, r.Texto_Resposta, r.correta 
                  FROM pergunta p
-                 JOIN resposta r ON p.ID_pergunta = r.ID_pergunta;`;
+                 JOIN resposta r ON p.ID_pergunta = r.ID_pergunta`;
 
     connection.query(sql, (err, results) => {
         if (err) {
@@ -104,65 +147,57 @@ app.get('/perguntas', (req, res) => {
 
         const perguntasMap = new Map();
 
-        results.forEach(row => {
-            if (!perguntasMap.has(row.Texto_pergunta)) {
-                perguntasMap.set(row.Texto_pergunta, []);
+        results.forEach(result => {
+            if (!perguntasMap.has(result.ID_pergunta)) {
+                perguntasMap.set(result.ID_pergunta, {
+                    ID_pergunta: result.ID_pergunta,
+                    Texto_pergunta: result.Texto_pergunta,
+                    respostas: []
+                });
             }
-            perguntasMap.get(row.Texto_pergunta).push({
-                texto: row.Texto_Resposta,
-                correta: row.correta
+            perguntasMap.get(result.ID_pergunta).respostas.push({
+                ID_resposta: result.ID_resposta,
+                texto: result.Texto_Resposta,
+                correta: result.correta
             });
         });
 
-        const perguntas = Array.from(perguntasMap.entries()).map(([pergunta, respostas]) => ({
-            pergunta,
-            respostas: respostas.sort(() => 0.5 - Math.random())
-        }));
-
-        res.json(perguntas.slice(0, 10)); // Retorna 10 perguntas
+        res.json(Array.from(perguntasMap.values()));
     });
 });
 
-// Rota principal
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'view/index.html'));
+
+
+// Update pergunta
+app.put('/api/pergunta/:id', (req, res) => {
+    const idPergunta = req.params.id;
+    const { texto_pergunta, respostas } = req.body;
+
+    connection.query('UPDATE pergunta SET texto_pergunta = ? WHERE id_pergunta = ?', [texto_pergunta, idPergunta], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+
+        const query = 'UPDATE resposta SET texto_resposta = ?, correta = ? WHERE id_resposta = ?';
+        respostas.forEach(resposta => {
+            connection.query(query, [resposta.texto_resposta, resposta.correta ? 1 : 0, resposta.id_resposta], (err) => {
+                if (err) return res.status(500).json({ error: err.message });
+            });
+        });
+
+        res.json({ success: true });
+    });
 });
 
+// Adicionar pergunta
+app.post('/api/pergunta', (req, res) => {
+    const { texto_pergunta } = req.body;
+
+    connection.query('INSERT INTO pergunta (texto_pergunta) VALUES (?)', [texto_pergunta], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+
+        res.json({ success: true });
+    });
+});
 // Iniciar o servidor
 app.listen(port, () => {
     console.log(`Servidor rodando em http://localhost:${port}`);
-});
-// Rota para salvar a pontuação
-app.post('/salvar-pontuacao', (req, res) => {
-    const nomeJogador = req.body['nome-jogador'];
-    const pontuacao = req.body.pontuacao;
-
-    // Primeiro, obtenha o ID do jogador
-    const getJogadorIdQuery = 'SELECT ID_jogador FROM jogador WHERE nome = ?';
-    connection.query(getJogadorIdQuery, [nomeJogador], (err, results) => {
-        if (err) {
-            console.error('Erro ao obter ID do jogador:', err);
-            res.status(500).send('Erro ao obter ID do jogador');
-            return;
-        }
-
-        if (results.length === 0) {
-            console.error('Jogador não encontrado');
-            res.status(404).send('Jogador não encontrado');
-            return;
-        }
-
-        const jogadorId = results[0].ID_jogador;
-
-        // Insere a pontuação na tabela partida
-        const insertPartidaQuery = 'INSERT INTO partida (ID_jogador, pontuacao_total) VALUES (?, ?)';
-        connection.query(insertPartidaQuery, [jogadorId, pontuacao], (err) => {
-            if (err) {
-                console.error('Erro ao salvar a pontuação:', err);
-                res.status(500).send('Erro ao salvar a pontuação');
-                return;
-            }
-            res.redirect('/ranking.html');
-        });
-    });
 });
