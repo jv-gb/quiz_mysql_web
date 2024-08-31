@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const questionsList = document.getElementById('questions-list');
 
     const loadQuestions = () => {
-        fetch('/perguntas')
+        fetch('/obter-perguntas')
             .then(response => response.json())
             .then(perguntas => {
                 questionsList.innerHTML = '';

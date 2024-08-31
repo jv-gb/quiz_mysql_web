@@ -134,9 +134,9 @@ app.get('/', (req, res) => {
 
 // Rota para obter todas as perguntas
 app.get('/obter-perguntas', (req, res) => {
-    const sql = `SELECT p.ID_pergunta, p.Texto_pergunta, r.ID_resposta, r.Texto_Resposta, r.correta 
+    const sql = `SELECT p.id_pergunta, p.texto_pergunta, r.id_resposta, r.texto_resposta, r.correta 
                  FROM pergunta p
-                 JOIN resposta r ON p.ID_pergunta = r.ID_pergunta`;
+                 JOIN resposta r ON p.id_pergunta = r.id_pergunta`;
 
     connection.query(sql, (err, results) => {
         if (err) {
@@ -148,22 +148,22 @@ app.get('/obter-perguntas', (req, res) => {
         const perguntasMap = new Map();
 
         results.forEach(result => {
-            if (!perguntasMap.has(result.ID_pergunta)) {
-                perguntasMap.set(result.ID_pergunta, {
-                    ID_pergunta: result.ID_pergunta,
-                    Texto_pergunta: result.Texto_pergunta,
-                    respostas: []
-                });
+            if (!perguntasMap.has(result.texto_pergunta)) {
+                perguntasMap.set(result.texto_pergunta, []);
             }
-            perguntasMap.get(result.ID_pergunta).respostas.push({
-                ID_resposta: result.ID_resposta,
-                texto: result.Texto_Resposta,
+            perguntasMap.get(result.texto_pergunta).push({
+                texto: result.texto_resposta,
                 correta: result.correta
             });
         });
 
-        res.json(Array.from(perguntasMap.values()));
-    });
+        const perguntas = Array.from(perguntasMap.entries()).map(([pergunta, respostas]) => ({
+            pergunta,
+            respostas,
+        }));
+
+        res.json(perguntas); 
+    })
 });
 
 
