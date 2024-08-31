@@ -48,9 +48,9 @@ document.addEventListener('DOMContentLoaded', () => {
         editForm.innerHTML = `
             <input type="text" name="nova-pergunta" value="${questionData.pergunta}" required>
             ${questionData.respostas.map((resposta, i) => `
-                <input type="text" name="resposta-${i}" value="${resposta.texto}" required>
+                <input type="text" name="resposta-${i}" id=${resposta.id} value="${resposta.texto}" required>
                 <label>
-                    <input type="radio" name="correta" value="${i}" ${resposta.correta ? 'checked' : ''}> Verdadeira
+                    <input type="radio" name="correta" value="${resposta.id}" ${resposta.correta ? 'checked' : ''}> Verdadeira
                 </label>
             `).join('')}
             <button type="submit" class="btn salvar">Salvar</button>
@@ -70,14 +70,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const corretaIndex = editForm.querySelector('[name="correta"]:checked').value;
 
             for (let i = 0; i < questionData.respostas.length; i++) {
+                const respostaId = editForm.querySelector(`[name="resposta-${i}"]`).id;
+                const textoResposta = editForm.querySelector(`[name="resposta-${i}"]`).value;
                 novasRespostas.push({
-                    texto: editForm.querySelector(`[name="resposta-${i}"]`).value,
+                    id_resposta: Number(respostaId),
+                    texto_resposta: textoResposta,
                     correta: i == corretaIndex
                 });
             }
 
             const data = {
-                pergunta: novaPergunta,
+                pergunta_id: questionIndex,
+                pergunta_texto: novaPergunta,
                 respostas: novasRespostas
             };
             console.log(data);

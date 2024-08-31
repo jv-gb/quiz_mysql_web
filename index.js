@@ -4,6 +4,8 @@ const mysql = require('mysql2');
 const app = express();
 const port = 3000;
 
+app.use(express.json());
+
 const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
@@ -90,11 +92,11 @@ app.post('/salvar-pontuacao', (req, res) => {
 // Rota para visualizar perguntas
 app.get('/perguntas', (req, res) => {
     const sql = `SELECT * FROM
-    (SELECT DISTINCT p.id_pergunta, p.texto_pergunta
-        FROM pergunta p
-        ORDER BY RAND ()
-        LIMIT 10) as pr
-JOIN resposta r ON pr.id_pergunta = r.id_pergunta`;
+        (SELECT DISTINCT p.id_pergunta, p.texto_pergunta
+            FROM pergunta p
+            ORDER BY RAND ()
+            LIMIT 10) as pr
+            JOIN resposta r ON pr.id_pergunta = r.id_pergunta`;
 
     connection.query(sql, (err, results) => {
         console.log(results);
@@ -174,16 +176,16 @@ app.get('/obter-perguntas', (req, res) => {
 
 // Update pergunta
 app.put('/editar-pergunta/:id', (req, res) => {
-    const idPergunta = req.params.id;
-    const { pergunta, respostas } = req.body;
+    const idPergunta = Number(req.params.id);
+    const { pergunta_texto, respostas } = req.body;
     console.log(req.body);
+    if (!pergunta_texto || !respostas || respostas.length !== 4) return res.status(500).json({ error: err.message });
 
-
-    connection.query('UPDATE pergunta SET texto_pergunta = ? WHERE id_pergunta = ?', [pergunta, idPergunta], (err) => {
+    connection.query('UPDATE pergunta SET texto_pergunta = ? WHERE id_pergunta = ?', [pergunta_texto, idPergunta], (err) => {
         if (err) return res.status(500).json({ error: err.message });
 
         const query = 'UPDATE resposta SET texto_resposta = ?, correta = ? WHERE id_resposta = ?';
-        respostas.forEach(resposta => {
+        respostas && respostas.forEach(resposta => {
             connection.query(query, [resposta.texto_resposta, resposta.correta ? 1 : 0, resposta.id_resposta], (err) => {
                 if (err) return res.status(500).json({ error: err.message });
             });
