@@ -1,23 +1,26 @@
 document.addEventListener('DOMContentLoaded', () => {
     const questionsList = document.getElementById('questions-list');
+    let listaPerguntas;
 
     const loadQuestions = () => {
         fetch('/obter-perguntas')
             .then(response => response.json())
             .then(perguntas => {
+                listaPerguntas = perguntas;
                 questionsList.innerHTML = '';
-                perguntas.forEach((pergunta, index) => {
+                perguntas.forEach((pergunta) => {
                     const perguntaDiv = document.createElement('div');
                     perguntaDiv.classList.add('pergunta-item');
+                    perguntaDiv.id = pergunta.id;
                     perguntaDiv.innerHTML = `
-                        <h3>${pergunta.pergunta}</h3>
-                        ${pergunta.respostas.map((resposta, i) => `
-                            <p class="resposta">
-                                <span>${i + 1}. ${resposta.texto} ${resposta.correta ? '(Verdadeira)' : ''}</span>
+                        <h3>${pergunta.id}. ${pergunta.pergunta}</h3>
+                        ${pergunta.respostas.map((resposta) => `
+                            <p class="resposta" id="${resposta.id}">
+                                <span>${resposta.texto} ${resposta.correta ? '(Verdadeira)' : ''}</span>
                             </p>
                         `).join('')}
-                        <button class="btn editar" data-id="${index}">Editar</button>
-                        <button class="btn excluir" data-id="${index}">Excluir</button>
+                        <button class="btn editar" data-id="${pergunta.id}">Editar</button>
+                        <button class="btn excluir" data-id="${pergunta.id}">Excluir</button>
                     `;
                     questionsList.appendChild(perguntaDiv);
                 });
@@ -35,10 +38,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const handleEdit = (event) => {
         const questionIndex = event.target.dataset.id;
-        const questionData = perguntas[questionIndex];
+        const questionData = listaPerguntas.find(pergunta => Number(pergunta.id) === Number(questionIndex));
 
         const editForm = document.createElement('form');
         editForm.classList.add('edit-form');
+        console.log(questionData);
+
 
         editForm.innerHTML = `
             <input type="text" name="nova-pergunta" value="${questionData.pergunta}" required>
@@ -75,6 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 pergunta: novaPergunta,
                 respostas: novasRespostas
             };
+            console.log(data);
 
             fetch(`/editar-pergunta/${questionData.id}`, {
                 method: 'PUT',

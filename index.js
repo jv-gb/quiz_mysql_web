@@ -26,20 +26,20 @@ app.use('/style', express.static(path.join(__dirname, 'style')));
 // Middleware para parsear o corpo das requisições POST
 app.use(express.urlencoded({ extended: true }));
 
-app.get('/acessar-jogador',(req, res)=>{
+app.get('/acessar-jogador', (req, res) => {
     const nomeJogador = req.query['nome-jogador'];
     const senhaJogador = req.query['senha'];
     const sql = 'SELECT username FROM jogador WHERE username = (?) and senha = (?)';
 
     console.log(sql);
 
-    connection.query(sql,[nomeJogador,senhaJogador],(err,response) => {
+    connection.query(sql, [nomeJogador, senhaJogador], (err, response) => {
         if (err) {
             console.error('Usuário ou senha incorretos:', err);
             res.status(500).send('Usuário ou senha incorretos');
             return;
         }
-        if(response.length === 0){
+        if (response.length === 0) {
             console.error('Usuário ou senha incorretos:', err);
             res.status(401).send('Usuário ou senha incorretos');
             return;
@@ -51,14 +51,14 @@ app.get('/acessar-jogador',(req, res)=>{
 
 // Rota para salvar o jogador
 app.post('/salvar-jogador', (req, res) => {
-   
+
     const nomeJogador = req.body['nome-jogador-novo'];
     const senhaJogador = req.body['senha-nova'];
     console.log(nomeJogador);
 
-    const sql = 'INSERT INTO jogador (username, senha) VALUES (?, ?)';   
+    const sql = 'INSERT INTO jogador (username, senha) VALUES (?, ?)';
 
-    connection.query(sql, [nomeJogador,senhaJogador], (err) => {
+    connection.query(sql, [nomeJogador, senhaJogador], (err) => {
         if (err) {
             console.log('teste');
             console.error('Erro ao salvar o jogador:', err);
@@ -98,7 +98,7 @@ JOIN resposta r ON pr.id_pergunta = r.id_pergunta`;
 
     connection.query(sql, (err, results) => {
         console.log(results);
-        
+
         if (err) {
             console.error('Erro ao obter perguntas:', err);
             res.status(500).send('Erro ao obter perguntas');
@@ -122,7 +122,7 @@ JOIN resposta r ON pr.id_pergunta = r.id_pergunta`;
             respostas: respostas.sort(() => 0.5 - Math.random())
         }));
 
-        res.json(perguntas); 
+        res.json(perguntas);
     });
 });
 
@@ -145,35 +145,41 @@ app.get('/obter-perguntas', (req, res) => {
             return;
         }
 
-        const perguntasMap = new Map();
+        const perguntasRespostas = [];
 
         results.forEach(result => {
-            if (!perguntasMap.has(result.texto_pergunta)) {
-                perguntasMap.set(result.texto_pergunta, []);
+            if (!perguntasRespostas.find(pergunta => pergunta.id === result.id_pergunta)) {
+                return perguntasRespostas.push({
+                    id: result.id_pergunta,
+                    pergunta: result.texto_pergunta,
+                    respostas: [{
+                        id: result.id_resposta,
+                        texto: result.texto_resposta,
+                        correta: result.correta
+                    }]
+                })
             }
-            perguntasMap.get(result.texto_pergunta).push({
+            return perguntasRespostas.find(pergunta => pergunta.id === result.id_pergunta).respostas.push({
+                id: result.id_resposta,
                 texto: result.texto_resposta,
                 correta: result.correta
-            });
-        });
+            })
+        })
 
-        const perguntas = Array.from(perguntasMap.entries()).map(([pergunta, respostas]) => ({
-            pergunta,
-            respostas,
-        }));
-
-        res.json(perguntas); 
+        res.json(perguntasRespostas);
     })
 });
 
 
 
 // Update pergunta
-app.put('/api/pergunta/:id', (req, res) => {
+app.put('/editar-pergunta/:id', (req, res) => {
     const idPergunta = req.params.id;
-    const { texto_pergunta, respostas } = req.body;
+    const { pergunta, respostas } = req.body;
+    console.log(req.body);
 
-    connection.query('UPDATE pergunta SET texto_pergunta = ? WHERE id_pergunta = ?', [texto_pergunta, idPergunta], (err) => {
+
+    connection.query('UPDATE pergunta SET texto_pergunta = ? WHERE id_pergunta = ?', [pergunta, idPergunta], (err) => {
         if (err) return res.status(500).json({ error: err.message });
 
         const query = 'UPDATE resposta SET texto_resposta = ?, correta = ? WHERE id_resposta = ?';
