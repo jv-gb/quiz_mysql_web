@@ -98,16 +98,33 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    const handleDelete = (event) => {
-        const questionIndex = event.target.dataset.id;
-        const questionData = listaPerguntas.find(pergunta => Number(pergunta.id) === Number(questionIndex));
-
-        fetch(`/excluir-pergunta/${questionData.id}`, {
+const handleDelete = (event)=> {
+    const questionIndex = event.target.dataset.id;
+    const confirmacao = confirm("Você tem certeza que deseja excluir esta pergunta?");
+    
+    if (confirmacao) {
+        // Se o usuário confirmar, envia uma requisição DELETE
+        fetch(`/excluir-pergunta/${questionIndex}`, {
             method: 'DELETE'
         })
-            .then(() => loadQuestions())
-            .catch(error => console.error('Erro ao excluir pergunta:', error));
-    };
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Pergunta excluída com sucesso!");
+                loadQuestions();
+            } else {
+                alert("Ocorreu um erro ao excluir a pergunta.");
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert("Ocorreu um erro ao excluir a pergunta.");
+        });
+    } else {
+        // A exclusão foi cancelada
+        alert("Exclusão cancelada.");
+    }};
+
 
     loadQuestions();
 });
