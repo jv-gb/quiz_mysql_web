@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     perguntaDiv.classList.add('pergunta-item');
                     perguntaDiv.id = pergunta.id;
                     perguntaDiv.innerHTML = `
-                        <h3>${pergunta.id}. ${pergunta.pergunta}</h3>
+                        <h3>${pergunta.pergunta}</h3>
                         ${pergunta.respostas.map((resposta) => `
                             <p class="resposta" id="${resposta.id}">
                                 <span>${resposta.texto} ${resposta.correta ? '(Verdadeira)' : ''}</span>

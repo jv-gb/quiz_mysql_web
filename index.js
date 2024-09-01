@@ -67,7 +67,7 @@ app.post('/salvar-jogador', (req, res) => {
             res.status(500).send('Erro ao salvar o jogador');
             return;
         }
-       
+
         res.redirect('/login.html');
     });
 });
@@ -215,15 +215,32 @@ app.put('/editar-pergunta/:id', (req, res) => {
 app.delete('/excluir-pergunta/:id', (req, res) => {
     const idPergunta = Number(req.params.id);
 
-    connection.query('DELETE FROM pergunta WHERE id_pergunta = ?', [idPergunta], (err)=>{
-        if(err){
+    connection.query('DELETE FROM pergunta WHERE id_pergunta = ?', [idPergunta], (err) => {
+        if (err) {
             return res.status(500).json({ error: err.message });
         }
         res.json({ success: true });
-});
+    });
 
 
 });
+
+app.get('/ranking', (req, res) => {
+    const sql = `SELECT partida.id_partida, jogador.username, partida.pontuacao_total
+    FROM jogador
+    JOIN partida
+    ON jogador.id_jogador = partida.id_jogador
+    ORDER BY partida.pontuacao_total
+    LIMIT 10`;
+
+    connection.query(sql, (err,results) => {
+        if (err) {
+            return res.status(500).json({ error: err.message })
+        }
+        res.json(results);
+    })
+
+})
 
 // Iniciar o servidor
 app.listen(port, () => {
