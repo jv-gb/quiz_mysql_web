@@ -77,3 +77,12 @@ a.btn {
 a.btn:hover {
     background-color: #218838;
 }
+.gerenciarPerguntas {
+    position: fixed;
+    bottom: 10px; /* Distância do canto inferior */
+    right: 10px; /* Distância do canto direito */
+    background-color: #f0f0f0; /* Cor de fundo da div */
+    padding: 10px; /* Espaçamento interno */
+    border-radius: 5px; /* Bordas arredondadas */
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2); /* Sombra para destacar a div */
+}
