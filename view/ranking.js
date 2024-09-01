@@ -5,18 +5,34 @@ document.addEventListener('DOMContentLoaded', () => {
         fetch('/ranking')
             .then(response => response.json())
             .then(ranking => {
-                rankingList.innerHTML = '';
+                rankingList.innerHTML = `
+                    <table class="ranking-table">
+                        <thead>
+                            <tr>
+                                <th>Número da Partida</th>
+                                <th>Nome do Jogador</th>
+                                <th>Pontuação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rankingBody">
+                        </tbody>
+                    </table>
+                `;
+                
+                const rankingBody = document.getElementById('rankingBody');
                 ranking.forEach((itemRanking) => {
-                    const itemRankingDiv = document.createElement('div');
-                    itemRankingDiv.classList.add('item-ranking');
-                    itemRankingDiv.id = itemRanking.id_partida;
-                    itemRankingDiv.innerHTML = `
-                        <h3>${itemRanking.id_partida} - ${itemRanking.username} - ${itemRanking.pontuacao_total}</h3>
+                    const row = document.createElement('tr');
+                    row.id = itemRanking.id_partida;
+                    row.innerHTML = `
+                        <td>${itemRanking.id_partida}</td>
+                        <td>${itemRanking.username}</td>
+                        <td>${itemRanking.pontuacao_total}</td>
                     `;
-                    rankingList.appendChild(itemRankingDiv);
+                    rankingBody.appendChild(row);
                 });
             })
             .catch(error => console.error('Erro ao carregar ranking:', error));
     };
+    
     loadRanking();
 });

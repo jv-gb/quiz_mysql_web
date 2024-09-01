@@ -60,3 +60,28 @@ h1 {
 .edit-form {
     margin-top: 10px;
 }
+.ranking-table {
+    margin: 0 auto;
+    padding-top: 50px;
+    border-collapse: collapse;
+    width: 80%;
+    text-align: center;
+}
+
+.ranking-table th, .ranking-table td {
+    padding: 15px;
+    border: 1px solid #ddd;
+}
+
+.ranking-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.ranking-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.ranking-table tr:hover {
+    background-color: #ddd;
+}
