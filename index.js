@@ -224,8 +224,7 @@ app.get('/ranking', (req, res) => {
     FROM jogador
     JOIN partida
     ON jogador.id_jogador = partida.id_jogador
-    ORDER BY partida.pontuacao_total
-    LIMIT 10`;
+    ORDER BY partida.pontuacao_total DESC`;
 
     connection.query(sql, (err,results) => {
         if (err) {
