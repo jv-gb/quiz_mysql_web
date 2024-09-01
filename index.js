@@ -66,6 +66,7 @@ app.post('/salvar-jogador', (req, res) => {
             return;
         }
     });
+    res.redirect('/login.html')
 });
 
 
