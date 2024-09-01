@@ -67,27 +67,42 @@ app.post('/salvar-jogador', (req, res) => {
             res.status(500).send('Erro ao salvar o jogador');
             return;
         }
-        res.redirect('/jogo.html');
+       
+        res.redirect('/login.html');
     });
 });
 
 
-
 // Rota para salvar a pontuação
 app.post('/salvar-pontuacao', (req, res) => {
-    const nomeJogador = req.body['nome-jogador'];
-    const pontuacao = req.body.pontuacao;
-    const sql = 'UPDATE jogador SET pontuacao = ? WHERE nome = ?';
+    const idJogador = req.body.id; // ID do jogador enviado pelo frontend
+    const pontuacao = parseInt(req.body.pontuacao, 10); // Converte a pontuação para um número inteiro
 
-    connection.query(sql, [pontuacao, nomeJogador], (err) => {
+    // Verifica se a pontuação é um número válido
+    if (isNaN(pontuacao)) {
+        console.error('Pontuação inválida:', req.body.pontuacao);
+        res.status(400).send('Pontuação inválida');
+        return;
+    }
+
+    // Consulta SQL para inserir a pontuação na tabela partida
+    const sql = `
+        INSERT INTO partida (ID_jogador, pontuacao_total)
+        VALUES (?, ?)
+    `;
+
+    // Executando a consulta SQL
+    connection.query(sql, [idJogador, pontuacao], (err) => {
         if (err) {
             console.error('Erro ao salvar a pontuação:', err);
             res.status(500).send('Erro ao salvar a pontuação');
             return;
         }
+        // Redirecionando para a página de ranking após salvar a pontuação
         res.redirect('/ranking.html');
     });
 });
+
 
 // Rota para visualizar perguntas
 app.get('/perguntas', (req, res) => {

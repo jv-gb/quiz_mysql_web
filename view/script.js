@@ -3,12 +3,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let score = 0;
     let perguntas = [];
     let jogadorNome = ''; // Nome do jogador
+    let jogadorId = ''; // ID do jogador (certifique-se de definir isso corretamente)
 
     const container = document.querySelector('.container');
     const scoreElement = document.querySelector('.score');
     const pontuacaoForm = document.getElementById('pontuacao-form');
     const nomeJogadorInput = document.getElementById('nome-jogador-form');
     const pontuacaoInput = document.getElementById('pontuacao-form');
+    const idJogadorInput = document.createElement('input');
+    idJogadorInput.type = 'hidden';
+    idJogadorInput.name = 'id';
+    idJogadorInput.id = 'id-jogador-form';
+    pontuacaoForm.appendChild(idJogadorInput);
 
     const updateScore = () => {
         scoreElement.textContent = `Pontuação: ${score}`;
@@ -16,9 +22,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const loadQuestion = () => {
         if (currentQuestionIndex >= perguntas.length) {
-            // Preenche o formulário com o nome do jogador e a pontuação
+            // Preenche o formulário com o nome do jogador, ID e a pontuação
             nomeJogadorInput.value = jogadorNome;
             pontuacaoInput.value = score;
+            idJogadorInput.value = jogadorId;
 
             // Exibe o botão "Jogar Novamente"
             container.innerHTML = `
@@ -29,6 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('salvar-pontuacao').addEventListener('click', () => {
                 pontuacaoForm.submit();
             });
+
             return;
         }
 
@@ -98,6 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 respostas: q.respostas
             }));
             jogadorNome = new URLSearchParams(window.location.search).get('nome-jogador') || '';
+            jogadorId = new URLSearchParams(window.location.search).get('id-jogador') || ''; // Defina corretamente o ID do jogador
             loadQuestion();
         })
         .catch(error => console.error('Erro ao carregar perguntas:', error));
