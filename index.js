@@ -31,9 +31,8 @@ app.use(express.urlencoded({ extended: true }));
 app.get('/acessar-jogador', (req, res) => {
     const nomeJogador = req.query['nome-jogador'];
     const senhaJogador = req.query['senha'];
-    const sql = 'SELECT username FROM jogador WHERE username = (?) and senha = (?)';
+    const sql = 'SELECT username, id_jogador FROM jogador WHERE username = (?) and senha = (?)';
 
-    console.log(sql);
 
     connection.query(sql, [nomeJogador, senhaJogador], (err, response) => {
         if (err) {
@@ -46,7 +45,8 @@ app.get('/acessar-jogador', (req, res) => {
             res.status(401).send('Usuário ou senha incorretos');
             return;
         }
-        res.redirect('/jogo.html');
+        
+        res.redirect(`/jogo.html?id-jogador=${response[0].id_jogador}`);
     });
 
 })
@@ -56,19 +56,15 @@ app.post('/salvar-jogador', (req, res) => {
 
     const nomeJogador = req.body['nome-jogador-novo'];
     const senhaJogador = req.body['senha-nova'];
-    console.log(nomeJogador);
 
     const sql = 'INSERT INTO jogador (username, senha) VALUES (?, ?)';
 
     connection.query(sql, [nomeJogador, senhaJogador], (err) => {
         if (err) {
-            console.log('teste');
             console.error('Erro ao salvar o jogador:', err);
             res.status(500).send('Erro ao salvar o jogador');
             return;
         }
-
-        res.redirect('/login.html');
     });
 });
 
@@ -98,6 +94,7 @@ app.post('/salvar-pontuacao', (req, res) => {
             res.status(500).send('Erro ao salvar a pontuação');
             return;
         }
+
         // Redirecionando para a página de ranking após salvar a pontuação
         res.redirect('/ranking.html');
     });
@@ -114,8 +111,6 @@ app.get('/perguntas', (req, res) => {
             JOIN resposta r ON pr.id_pergunta = r.id_pergunta`;
 
     connection.query(sql, (err, results) => {
-        console.log(results);
-
         if (err) {
             console.error('Erro ao obter perguntas:', err);
             res.status(500).send('Erro ao obter perguntas');
@@ -193,7 +188,6 @@ app.get('/obter-perguntas', (req, res) => {
 app.put('/editar-pergunta/:id', (req, res) => {
     const idPergunta = Number(req.params.id);
     const { pergunta_texto, respostas } = req.body;
-    console.log(req.body);
     if (!pergunta_texto || !respostas || respostas.length !== 4) return res.status(500).json({ error: err.message });
 
     connection.query('UPDATE pergunta SET texto_pergunta = ? WHERE id_pergunta = ?', [pergunta_texto, idPergunta], (err) => {

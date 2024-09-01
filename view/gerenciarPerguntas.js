@@ -42,7 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const editForm = document.createElement('form');
         editForm.classList.add('edit-form');
-        console.log(questionData);
 
 
         editForm.innerHTML = `
@@ -50,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ${questionData.respostas.map((resposta, i) => `
                 <input type="text" name="resposta-${i}" id=${resposta.id} value="${resposta.texto}" required>
                 <label>
-                    <input type="radio" name="correta" value="${resposta.id}" ${resposta.correta ? 'checked' : ''}> Verdadeira
+                    <input type="radio" name=correta-${questionIndex} value="${resposta.id}" ${resposta.correta ? 'checked' : ''}> Verdadeira
                 </label>
             `).join('')}
             <button type="submit" class="btn salvar">Salvar</button>
@@ -67,15 +66,16 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const novaPergunta = editForm.querySelector('[name="nova-pergunta"]').value;
             const novasRespostas = [];
-            const corretaIndex = editForm.querySelector('[name="correta"]:checked').value;
 
-            for (let i = 0; i < questionData.respostas.length; i++) {
+            for (let i = 0; i < questionData.respostas.length; i++) {                
                 const respostaId = editForm.querySelector(`[name="resposta-${i}"]`).id;
                 const textoResposta = editForm.querySelector(`[name="resposta-${i}"]`).value;
+                const respostaCorreta = editForm.querySelector(`input[name="correta-${questionIndex}"]:checked`).value;
+
                 novasRespostas.push({
                     id_resposta: Number(respostaId),
                     texto_resposta: textoResposta,
-                    correta: i == corretaIndex
+                    correta: respostaCorreta === respostaId
                 });
             }
 
@@ -84,7 +84,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 pergunta_texto: novaPergunta,
                 respostas: novasRespostas
             };
-            console.log(data);
 
             fetch(`/editar-pergunta/${questionData.id}`, {
                 method: 'PUT',

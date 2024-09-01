@@ -3,8 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let score = 0;
     let perguntas = [];
     let jogadorNome = ''; // Nome do jogador
-    let jogadorId = ''; // ID do jogador (certifique-se de definir isso corretamente)
-
+    let jogadorId = window.location.search.split("=")[1]; // ID do jogador (certifique-se de definir isso corretamente)
+    
     const container = document.querySelector('.container');
     const scoreElement = document.querySelector('.score');
     const pontuacaoForm = document.getElementById('pontuacao-form');
@@ -34,7 +34,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 <button id="salvar-pontuacao" class="btn">Salvar Pontuação</button>
             `;
             document.getElementById('salvar-pontuacao').addEventListener('click', () => {
-                pontuacaoForm.submit();
+                const data = {
+                    id: jogadorId,
+                    pontuacao: score,
+                }
+                fetch(`/salvar-pontuacao`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                    .then(() => window.location.replace("/ranking.html"))
+                    .catch(error => console.error('Erro ao salvar alteração:', error));
             });
 
             return;
